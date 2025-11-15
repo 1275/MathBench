@@ -37,7 +37,7 @@ make
 ## Dependencies 
 
 ```bash
-apt get update && apt get install make g++ gcc build-essential 
+apt update && apt get install make g++ gcc build-essential 
 ```
 
 
