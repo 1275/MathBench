@@ -94,6 +94,8 @@ void MathBench::runAllBenchmarks()
     runSortingBenchmark();
     std::cout << "-----------------------------------\n";
     runMatrixMultiplicationBenchmark();
+    std::cout << "-----------------------------------\n";
+    runPrimeNumberBenchmark();
 }
 
 void MathBench::runBasicArithmeticBenchmark()
@@ -293,6 +295,33 @@ void MathBench::runMatrixMultiplicationBenchmark()
                                      for (std::size_t k = 0; k < matrixSize; ++k)
                                      {
                                          C[i][j] += A[i][k] * B[k][j];
+                                     }
+                                 }
+                             } }, iterations);
+
+                         return duration;
+                     }, iterations);
+}
+
+// Sieve of Eratosthenes based prime number benchmark
+void MathBench::runPrimeNumberBenchmark()
+{
+    const std::size_t iterations = 10000;
+    const std::size_t limit = 1'000'000; // Find primes up to 1,000,000
+    executeBenchmark("Running prime number benchmark...",
+                     [this, iterations, limit](int)
+                     {
+                         double duration = timeFunction([&]()
+                                                        {
+                             std::vector<bool> isPrime(limit + 1, true);
+                             isPrime[0] = isPrime[1] = false;
+                             for (std::size_t p = 2; p * p <= limit; ++p)
+                             {
+                                 if (isPrime[p])
+                                 {
+                                     for (std::size_t multiple = p * p; multiple <= limit; multiple += p)
+                                     {
+                                         isPrime[multiple] = false;
                                      }
                                  }
                              } }, iterations);

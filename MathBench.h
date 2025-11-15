@@ -46,12 +46,13 @@ private:
     void runSha256HashingBenchmark();
     void runSortingBenchmark();
     void runMatrixMultiplicationBenchmark();
+    void runPrimeNumberBenchmark();
 
     /*
     void runExponentialBenchmark();
     void runSquareRootBenchmark();
     void runFibonacciBenchmark();
-    void runPrimeNumberBenchmark();
+    
     
     void runFourierTransformBenchmark();
     
