@@ -9,6 +9,7 @@
 #include <string>
 #include <chrono>
 #include <cmath>
+#include <functional>
 #include <random>
 #include <thread>
 #include "picosha2.h"
@@ -60,7 +61,6 @@ private:
     void runVectorOperationsBenchmark();
     void runDifferentialEquationBenchmark();
     void runBigIntegerBenchmark();
-    ;
     void runAesEncryptionBenchmark();
     void runBaseConversionBenchmark();
     void runDateTimeComputationBenchmark();
@@ -68,6 +68,8 @@ private:
     void run3DTransformationBenchmark();
     void runImaginaryNumberBenchmark();
     */
+
+    void executeBenchmark(const std::string& title, const std::function<double(int)>& worker, std::size_t iterations);
 
     // Helper to measure how long a function takes.
     template <typename F>

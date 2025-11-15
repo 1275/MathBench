@@ -1,5 +1,7 @@
 #include "MathBench.h"
 
+#include <algorithm>
+
 int MathBench::run(int argc, char **argv)
 {
     parseArguments(argc, argv);
@@ -30,6 +32,37 @@ void MathBench::parseArguments(int argc, char **argv)
     }
 }
 
+void MathBench::executeBenchmark(const std::string &title, const std::function<double(int)> &worker, std::size_t iterations)
+{
+    std::cout << title << '\n';
+
+    std::vector<double> results(threadCount_, 0.0);
+    std::vector<std::thread> threads;
+    threads.reserve(threadCount_);
+
+    for (int i = 0; i < threadCount_; ++i)
+    {
+        threads.emplace_back([i, &worker, &results]()
+                             { results[i] = worker(i); });
+    }
+
+    for (auto &t : threads)
+    {
+        t.join();
+    }
+
+    double totalDuration = 0.0;
+    for (int i = 0; i < threadCount_; ++i)
+    {
+        totalDuration += results[i];
+        std::cout << "Thread " << i << " duration: " << results[i] << " seconds\n";
+    }
+    std::cout << "Combined time across all threads: " << totalDuration << " seconds\n";
+    double avgDuration = totalDuration / threadCount_;
+    double opsPerSec = iterations / avgDuration;
+    std::cout << "~" << (opsPerSec / 1e6) << " million ops/sec (avg per thread)\n";
+}
+
 void MathBench::runAllBenchmarks()
 {
     runBasicArithmeticBenchmark();
@@ -47,329 +80,205 @@ void MathBench::runAllBenchmarks()
 
 void MathBench::runBasicArithmeticBenchmark()
 {
-    std::cout << "Running basic arithmetic benchmark...\n";
     const std::size_t iterations = 1'000'000;
-    std::vector<double> results(threadCount_, 0.0);
     std::vector<double> sums(threadCount_, 0.0);
     std::vector<double> products(threadCount_, 0.0);
+    executeBenchmark("Running basic arithmetic benchmark...",
+                     [this, iterations, &sums, &products](int threadIndex)
+                     {
+                         std::random_device rd;
+                         std::mt19937 localEngine(rd());
 
-    std::vector<std::thread> threads;
-    threads.reserve(threadCount_);
+                         auto randDouble = [&localEngine]()
+                         {
+                             return (localEngine() % 1'000'000) / 100.0;
+                         };
 
-    for (int i = 0; i < threadCount_; ++i)
-    {
-        threads.emplace_back([this, iterations, &results, &sums, &products, i]()
-                             {
-            std::random_device rd;
-            std::mt19937 localEngine(rd());
+                         double a = randDouble();
+                         double b = randDouble();
+                         double sum = 0.0;
+                         double product = 0.0;
+                         auto func = [&]()
+                         {
+                             sum += a + b;
+                             product += a * b;
+                         };
 
-            auto randDouble = [&localEngine]() {
-                return (localEngine() % 1000000) / 100.0;
-            };
-
-            double a = randDouble();
-            double b = randDouble();
-            double sum = 0.0;
-            double product = 0.0;
-            auto func = [&]() {
-                sum += a + b;
-                product += a * b;
-            };
-
-            double duration = timeFunction(func, iterations);
-            results[i] = duration;
-            sums[i] = sum;
-            products[i] = product; });
-    }
-
-    // Wait for all threads to finish
-    for (auto &t : threads)
-    {
-        t.join();
-    }
-
-    double totalDuration = 0.0;
-    int threadIndex = 0;
-    for (const auto &dur : results)
-    {
-        totalDuration += dur;
-        std::cout << "Thread " << threadIndex++ << " duration: " << dur << " seconds\n";
-    }
-    std::cout << "Combined time across all threads: " << totalDuration << " seconds\n";
+                         double duration = timeFunction(func, iterations);
+                         sums[threadIndex] = sum;
+                         products[threadIndex] = product;
+                         return duration;
+                     }, iterations);
 }
 
 void MathBench::runTrigonometryBenchmark()
 {
-    std::cout << "Running trigonometry benchmark...\n";
     const std::size_t iterations = 1'000'000;
-    std::vector<double> results(threadCount_, 0.0);
     std::vector<double> sines(threadCount_, 0.0);
     std::vector<double> cosines(threadCount_, 0.0);
     std::vector<double> tangents(threadCount_, 0.0);
-    std::vector<std::thread> threads;
-    threads.reserve(threadCount_);
-    for (int i = 0; i < threadCount_; ++i)
-    {
-        threads.emplace_back([this, iterations, &results, &sines, &cosines, &tangents, i]()
-                             {
-            std::random_device rd;
-            std::mt19937 localEngine(rd());
+    executeBenchmark("Running trigonometry benchmark...",
+                     [this, iterations, &sines, &cosines, &tangents](int threadIndex)
+                     {
+                         std::random_device rd;
+                         std::mt19937 localEngine(rd());
 
-            auto randAngle = [&localEngine]() {
-                return (localEngine() % 36000) / 100.0; // 0.0 to 360.0 degrees
-            };
+                         auto randAngle = [&localEngine]()
+                         {
+                             return (localEngine() % 36'000) / 100.0;
+                         };
 
-            double angle = randAngle();   // in degrees
-            double accSine = 0.0;
-            double accCosine = 0.0;
-            double accTangent = 0.0;
+                         double angle = randAngle();
+                         double accSine = 0.0;
+                         double accCosine = 0.0;
+                         double accTangent = 0.0;
 
-            // Use radians for std::sin/cos/tan
-            auto func = [&]() {
-                double rad = angle * M_PI / 180.0;
-                accSine   += std::sin(rad);
-                accCosine += std::cos(rad);
-                accTangent += std::tan(rad);
-                angle += 0.001; // change the angle slightly each iteration
-            };
+                         auto func = [&]()
+                         {
+                             double rad = angle * M_PI / 180.0;
+                             accSine += std::sin(rad);
+                             accCosine += std::cos(rad);
+                             accTangent += std::tan(rad);
+                             angle += 0.001;
+                         };
 
-            double duration = timeFunction(func, iterations);
-            results[i] = duration;
-            sines[i] = accSine;
-            cosines[i] = accCosine;
-            tangents[i] = accTangent; });
-    }
-
-    // Wait for all threads to finish
-    for (auto &t : threads)
-    {
-        t.join();
-    }
-
-    double totalDuration = 0.0;
-    int threadIndex = 0;
-    for (const auto &dur : results)
-    {
-        totalDuration += dur;
-        std::cout << "Thread " << threadIndex++ << " duration: " << dur << " seconds\n";
-    }
-    std::cout << "Combined time across all threads: " << totalDuration << " seconds\n";
+                         double duration = timeFunction(func, iterations);
+                         sines[threadIndex] = accSine;
+                         cosines[threadIndex] = accCosine;
+                         tangents[threadIndex] = accTangent;
+                         return duration;
+                     }, iterations);
 }
 
 void MathBench::runLogarithmBenchmark()
 {
-    std::cout << "Running logarithm benchmark...\n";
     const std::size_t iterations = 1'000'000;
-    std::vector<double> results(threadCount_, 0.0);
     std::vector<double> logSums(threadCount_, 0.0);
+    executeBenchmark("Running logarithm benchmark...",
+                     [this, iterations, &logSums](int threadIndex)
+                     {
+                         std::random_device rd;
+                         std::mt19937 localEngine(rd());
 
-    std::vector<std::thread> threads;
-    threads.reserve(threadCount_);
+                         auto randDouble = [&localEngine]()
+                         {
+                             return 1.0 + (localEngine() % 1'000'000) / 100.0;
+                         };
 
-    for (int i = 0; i < threadCount_; ++i)
-    {
-        threads.emplace_back([this, iterations, &results, &logSums, i]()
-                             {
-            std::random_device rd;
-            std::mt19937 localEngine(rd());
+                         double sumLogs = 0.0;
+                         auto func = [&]()
+                         {
+                             double val = randDouble();
+                             sumLogs += std::log(val);
+                         };
 
-            auto randDouble = [&localEngine]() {
-                return 1.0 + (localEngine() % 1000000) / 100.0; // avoid log(0)
-            };
-
-            double sumLogs = 0.0;
-            auto func = [&]() {
-                double val = randDouble();
-                sumLogs += std::log(val);
-            };
-
-            double duration = timeFunction(func, iterations);
-            results[i] = duration;
-            logSums[i] = sumLogs; });
-    }
-
-    // Wait for all threads to finish
-    for (auto &t : threads)
-    {
-        t.join();
-    }
-
-    double totalDuration = 0.0;
-    int threadIndex = 0;
-    for (const auto &dur : results)
-    {
-        totalDuration += dur;
-        std::cout << "Thread " << threadIndex++ << " duration: " << dur << " seconds\n";
-    }
-    std::cout << "Combined time across all threads: " << totalDuration << " seconds\n";
+                         double duration = timeFunction(func, iterations);
+                         logSums[threadIndex] = sumLogs;
+                         return duration;
+                     }, iterations);
 }
 
 void MathBench::runSha256HashingBenchmark()
 {
-    std::cout << "Running SHA-256 hashing benchmark...\n";
     const std::size_t iterations = 100'000;
-    std::vector<double> results(threadCount_, 0.0);
+    executeBenchmark("Running SHA-256 hashing benchmark...",
+                     [this, iterations](int)
+                     {
+                         std::random_device rd;
+                         std::mt19937 localEngine(rd());
+                         std::uniform_int_distribution<uint8_t> byteDist(0, 255);
 
-    std::vector<std::thread> threads;
-    threads.reserve(threadCount_);
+                         auto randData = [&localEngine, &byteDist](std::size_t size)
+                         {
+                             std::vector<uint8_t> data(size);
+                             for (auto &b : data)
+                             {
+                                 b = byteDist(localEngine);
+                             }
+                             return data;
+                         };
 
-    for (int i = 0; i < threadCount_; ++i)
-    {
-        threads.emplace_back([this, iterations, &results, i]()
-                            {
-            std::random_device rd;
-            std::mt19937 localEngine(rd());
-            std::uniform_int_distribution<uint8_t> byteDist(0, 255);
+                         double duration = timeFunction([&]()
+                                                        {
+                             auto data = randData(256);
+                             std::vector<unsigned char> hash(picosha2::k_digest_size);
+                             picosha2::hash256(data.begin(), data.end(), hash.begin(), hash.end()); }, iterations);
 
-            auto randData = [&localEngine, &byteDist](std::size_t size) {
-                std::vector<uint8_t> data(size);
-                for (auto &b : data)
-                {
-                    b = byteDist(localEngine);
-                }
-                return data;
-            };
-
-            double duration = timeFunction([&]() {
-                auto data = randData(256); // 256 bytes of random data
-
-                std::vector<unsigned char> hash(picosha2::k_digest_size);
-                picosha2::hash256(data.begin(), data.end(), hash.begin(), hash.end());
-
-                // Optional: accumulate something from hash so the compiler can't drop it
-                // (though the work is already pretty observable).
-            }, iterations);
-            results[i] = duration; });
-    }
-
-    // Wait for all threads to finish
-    for (auto &t : threads)
-    {
-        t.join();
-    }
-
-    double totalDuration = 0.0;
-    int threadIndex = 0;
-    for (const auto &dur : results)
-    {
-        totalDuration += dur;
-        std::cout << "Thread " << threadIndex++ << " duration: " << dur << " seconds\n";
-    }
-    std::cout << "Combined time across all threads: " << totalDuration << " seconds\n";
+                         return duration;
+                     }, iterations);
 }
 
 void MathBench::runSortingBenchmark()
 {
-    std::cout << "Running sorting benchmark...\n";
     const std::size_t iterations = 1000; // Number of sorts per thread
-    const std::size_t dataSize = 100000;   // Size of each array to sort
-    std::vector<double> results(threadCount_, 0.0);
+    const std::size_t dataSize = 100000; // Size of each array to sort
+    executeBenchmark("Running sorting benchmark...",
+                     [this, iterations, dataSize](int)
+                     {
+                         std::random_device rd;
+                         std::mt19937 localEngine(rd());
+                         std::uniform_int_distribution<int> intDist(0, 1'000'000);
 
-    std::vector<std::thread> threads;
-    threads.reserve(threadCount_);
-
-    for (int i = 0; i < threadCount_; ++i)
-    {
-        threads.emplace_back([this, iterations, dataSize, &results, i]()
+                         auto randData = [&localEngine, &intDist, dataSize]()
+                         {
+                             std::vector<int> data(dataSize);
+                             for (auto &val : data)
                              {
-            std::random_device rd;
-            std::mt19937 localEngine(rd());
-            std::uniform_int_distribution<int> intDist(0, 1000000);
+                                 val = intDist(localEngine);
+                             }
+                             return data;
+                         };
 
-            auto randData = [&localEngine, &intDist, dataSize]() {
-                std::vector<int> data(dataSize);
-                for (auto &val : data)
-                {
-                    val = intDist(localEngine);
-                }
-                return data;
-            };
+                         double duration = timeFunction([&]()
+                                                        {
+                             auto data = randData();
+                             std::sort(data.begin(), data.end()); }, iterations);
 
-            double duration = timeFunction([&]() {
-                auto data = randData();
-                std::sort(data.begin(), data.end());
-            }, iterations);
-            results[i] = duration; });
-    }
-
-    // Wait for all threads to finish
-    for (auto &t : threads)
-    {
-        t.join();
-    }
-
-    double totalDuration = 0.0;
-    int threadIndex = 0;
-    for (const auto &dur : results)
-    {
-        totalDuration += dur;
-        std::cout << "Thread " << threadIndex++ << " duration: " << dur << " seconds\n";
-    }
-    std::cout << "Combined time across all threads: " << totalDuration << " seconds\n";
+                         return duration;
+                     }, iterations);
 }
 
 void MathBench::runMatrixMultiplicationBenchmark()
 {
-    std::cout << "Running matrix multiplication benchmark...\n";
     const std::size_t iterations = 200;
     const std::size_t matrixSize = 200; // 200x200 matrices
-    std::vector<double> results(threadCount_, 0.0);
+    executeBenchmark("Running matrix multiplication benchmark...",
+                     [this, iterations, matrixSize](int)
+                     {
+                         std::random_device rd;
+                         std::mt19937 localEngine(rd());
+                         std::uniform_real_distribution<double> dist(0.0, 1.0);
 
-    std::vector<std::thread> threads;
-    threads.reserve(threadCount_);
-
-    for (int i = 0; i < threadCount_; ++i)
-    {
-        threads.emplace_back([this, iterations, matrixSize, &results, i]()
+                         auto randMatrix = [&localEngine, &dist, matrixSize]()
+                         {
+                             std::vector<std::vector<double>> matrix(matrixSize, std::vector<double>(matrixSize));
+                             for (std::size_t r = 0; r < matrixSize; ++r)
                              {
-            std::random_device rd;
-            std::mt19937 localEngine(rd());
-            std::uniform_real_distribution<double> dist(0.0, 1.0);
+                                 for (std::size_t c = 0; c < matrixSize; ++c)
+                                 {
+                                     matrix[r][c] = dist(localEngine);
+                                 }
+                             }
+                             return matrix;
+                         };
 
-            auto randMatrix = [&localEngine, &dist, matrixSize]() {
-                std::vector<std::vector<double>> matrix(matrixSize, std::vector<double>(matrixSize));
-                for (std::size_t r = 0; r < matrixSize; ++r)
-                {
-                    for (std::size_t c = 0; c < matrixSize; ++c)
-                    {
-                        matrix[r][c] = dist(localEngine);
-                    }
-                }
-                return matrix;
-            };
+                         double duration = timeFunction([&]()
+                                                        {
+                             auto A = randMatrix();
+                             auto B = randMatrix();
+                             std::vector<std::vector<double>> C(matrixSize, std::vector<double>(matrixSize, 0.0));
 
-            double duration = timeFunction([&]() {
-                auto A = randMatrix();
-                auto B = randMatrix();
-                std::vector<std::vector<double>> C(matrixSize, std::vector<double>(matrixSize, 0.0));
+                             for (std::size_t i = 0; i < matrixSize; ++i)
+                             {
+                                 for (std::size_t j = 0; j < matrixSize; ++j)
+                                 {
+                                     for (std::size_t k = 0; k < matrixSize; ++k)
+                                     {
+                                         C[i][j] += A[i][k] * B[k][j];
+                                     }
+                                 }
+                             } }, iterations);
 
-                for (std::size_t i = 0; i < matrixSize; ++i)
-                {
-                    for (std::size_t j = 0; j < matrixSize; ++j)
-                    {
-                        for (std::size_t k = 0; k < matrixSize; ++k)
-                        {
-                            C[i][j] += A[i][k] * B[k][j];
-                        }
-                    }
-                }
-            }, iterations);
-            results[i] = duration; });
-    }
-
-    // Wait for all threads to finish
-    for (auto &t : threads)
-    {
-        t.join();
-    }
-
-    double totalDuration = 0.0;
-    int threadIndex = 0;
-    for (const auto &dur : results)
-    {
-        totalDuration += dur;
-        std::cout << "Thread " << threadIndex++ << " duration: " << dur << " seconds\n";
-    }
-    std::cout << "Combined time across all threads: " << totalDuration << " seconds\n";
+                         return duration;
+                     }, iterations);
 }
-
