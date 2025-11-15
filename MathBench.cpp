@@ -114,14 +114,18 @@ void MathBench::runBasicArithmeticBenchmark()
                              return (localEngine() % 1'000'000) / 100.0;
                          };
 
+                         double sum = 0.0;
+                         double product = 1.0;
                          double a = randDouble();
                          double b = randDouble();
-                         double sum = 0.0;
-                         double product = 0.0;
+                         
                          auto func = [&]()
                          {
+                             // Make it harder to optimize away
+                             a = a * 1.0001 + 0.5;
+                             b = b * 0.9999 + 0.3;
                              sum += a + b;
-                             product += a * b;
+                             product *= (a * b) / (iterations * 0.0000001); // Prevent overflow
                          };
 
                          double duration = timeFunction(func, iterations);
@@ -230,7 +234,7 @@ void MathBench::runSha256HashingBenchmark()
 
 void MathBench::runSortingBenchmark()
 {
-    const std::size_t iterations = 1000; // Number of sorts per thread
+    const std::size_t iterations = 100; // Number of sorts per thread
     const std::size_t dataSize = 100000; // Size of each array to sort
     executeBenchmark("Running sorting benchmark...",
                      [this, iterations, dataSize](int)
@@ -260,8 +264,8 @@ void MathBench::runSortingBenchmark()
 
 void MathBench::runMatrixMultiplicationBenchmark()
 {
-    const std::size_t iterations = 200;
-    const std::size_t matrixSize = 200; // 200x200 matrices
+    const std::size_t iterations = 100;
+    const std::size_t matrixSize = 100; // 200x200 matrices
     executeBenchmark("Running matrix multiplication benchmark...",
                      [this, iterations, matrixSize](int)
                      {
@@ -306,7 +310,7 @@ void MathBench::runMatrixMultiplicationBenchmark()
 // Sieve of Eratosthenes based prime number benchmark
 void MathBench::runPrimeNumberBenchmark()
 {
-    const std::size_t iterations = 10000;
+    const std::size_t iterations = 100;
     const std::size_t limit = 1'000'000; // Find primes up to 1,000,000
     executeBenchmark("Running prime number benchmark...",
                      [this, iterations, limit](int)
