@@ -41,6 +41,8 @@ void MathBench::runAllBenchmarks()
     runSha256HashingBenchmark();
     std::cout << "-----------------------------------\n";
     runSortingBenchmark();
+    std::cout << "-----------------------------------\n";
+    runMatrixMultiplicationBenchmark();
 }
 
 void MathBench::runBasicArithmeticBenchmark()
@@ -305,3 +307,69 @@ void MathBench::runSortingBenchmark()
     }
     std::cout << "Combined time across all threads: " << totalDuration << " seconds\n";
 }
+
+void MathBench::runMatrixMultiplicationBenchmark()
+{
+    std::cout << "Running matrix multiplication benchmark...\n";
+    const std::size_t iterations = 200;
+    const std::size_t matrixSize = 200; // 200x200 matrices
+    std::vector<double> results(threadCount_, 0.0);
+
+    std::vector<std::thread> threads;
+    threads.reserve(threadCount_);
+
+    for (int i = 0; i < threadCount_; ++i)
+    {
+        threads.emplace_back([this, iterations, matrixSize, &results, i]()
+                             {
+            std::random_device rd;
+            std::mt19937 localEngine(rd());
+            std::uniform_real_distribution<double> dist(0.0, 1.0);
+
+            auto randMatrix = [&localEngine, &dist, matrixSize]() {
+                std::vector<std::vector<double>> matrix(matrixSize, std::vector<double>(matrixSize));
+                for (std::size_t r = 0; r < matrixSize; ++r)
+                {
+                    for (std::size_t c = 0; c < matrixSize; ++c)
+                    {
+                        matrix[r][c] = dist(localEngine);
+                    }
+                }
+                return matrix;
+            };
+
+            double duration = timeFunction([&]() {
+                auto A = randMatrix();
+                auto B = randMatrix();
+                std::vector<std::vector<double>> C(matrixSize, std::vector<double>(matrixSize, 0.0));
+
+                for (std::size_t i = 0; i < matrixSize; ++i)
+                {
+                    for (std::size_t j = 0; j < matrixSize; ++j)
+                    {
+                        for (std::size_t k = 0; k < matrixSize; ++k)
+                        {
+                            C[i][j] += A[i][k] * B[k][j];
+                        }
+                    }
+                }
+            }, iterations);
+            results[i] = duration; });
+    }
+
+    // Wait for all threads to finish
+    for (auto &t : threads)
+    {
+        t.join();
+    }
+
+    double totalDuration = 0.0;
+    int threadIndex = 0;
+    for (const auto &dur : results)
+    {
+        totalDuration += dur;
+        std::cout << "Thread " << threadIndex++ << " duration: " << dur << " seconds\n";
+    }
+    std::cout << "Combined time across all threads: " << totalDuration << " seconds\n";
+}
+

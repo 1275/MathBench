@@ -44,13 +44,14 @@ private:
     void runLogarithmBenchmark();
     void runSha256HashingBenchmark();
     void runSortingBenchmark();
+    void runMatrixMultiplicationBenchmark();
 
     /*
     void runExponentialBenchmark();
     void runSquareRootBenchmark();
     void runFibonacciBenchmark();
     void runPrimeNumberBenchmark();
-    void runMatrixMultiplicationBenchmark();
+    
     void runFourierTransformBenchmark();
     
     void runRandomNumberGenerationBenchmark();
