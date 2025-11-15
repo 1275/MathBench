@@ -34,10 +34,16 @@ MathBench/
 make
 ```
 
-## Dependencies 
+## Dependencies for Debian based systems
+
 
 ```bash
-apt update && apt get install make g++ gcc build-essential 
+apt update && apt install make g++ gcc build-essential 
+```
+If you don't wanna add sudo manually
+
+```bash
+sudo apt update && sudo apt get install make g++ gcc build-essential 
 ```
 
 
