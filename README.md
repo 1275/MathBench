@@ -1,14 +1,14 @@
 # MathBench Performance Suite
 
-A comprehensive C++ benchmarking tool for testing mathematical operations performance.
+A shitty C++ benchmarking tool for testing mathematical operations performance.
+Primiarly to test ARM and RISC-V Math perfomance 
 
 ## Features
 
-- 12 different mathematical benchmarks
-- Multi-threaded support
-- Clean terminal UI designed for 80x24 display
-- Real-time progress tracking
-- Performance summary with top performers
+- 12 mathematical benchmarks
+- "Multi"-threaded support
+- UI designed for 80x24 display
+- "Real-time" progress tracking
 
 ## Project Structure
 
@@ -33,6 +33,13 @@ MathBench/
 ```bash
 make
 ```
+
+## Dependencies 
+
+```bash
+apt get update && apt get install make g++ gcc build-essential 
+```
+
 
 This will:
 - Create the `build/` directory if it doesn't exist
@@ -65,17 +72,6 @@ Run with multiple threads:
 10. **Fibonacci** - Recursive Fibonacci calculation
 11. **Monte Carlo Pi** - Pi estimation using random sampling
 12. **Fourier Transform (DFT)** - Discrete Fourier Transform
-
-## UI Features
-
-The terminal UI provides:
-- Real-time benchmark progress with spinning indicator
-- Completion status with checkmarks
-- Average time per benchmark
-- Operations per second (formatted as ops/s, Kops/s, Mops/s, or Gops/s)
-- Total elapsed time
-- Thread count display
-- Final summary with top performers
 
 ## Cleaning
 
