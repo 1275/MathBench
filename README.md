@@ -43,7 +43,7 @@ apt update && apt install make g++ gcc build-essential
 If you don't wanna add sudo manually
 
 ```bash
-sudo apt update && sudo apt get install make g++ gcc build-essential 
+sudo apt update && sudo apt install make g++ gcc build-essential 
 ```
 
 
