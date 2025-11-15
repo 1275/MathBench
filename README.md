@@ -28,12 +28,6 @@ MathBench/
 
 ```
 
-## Building
-
-```bash
-make
-```
-
 ## Dependencies for Debian based systems
 
 
@@ -46,6 +40,11 @@ If you don't wanna add sudo manually
 sudo apt update && sudo apt install make g++ gcc build-essential 
 ```
 
+## Building
+
+```bash
+make
+```
 
 This will:
 - Create the `build/` directory if it doesn't exist
