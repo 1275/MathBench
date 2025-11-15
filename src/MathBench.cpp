@@ -5,7 +5,16 @@
 int MathBench::run(int argc, char **argv)
 {
     parseArguments(argc, argv);
+    
+    // Initialize UI
+    ui_ = std::make_unique<UI>(threadCount_);
+    ui_->init();
+    
     runAllBenchmarks();
+    
+    // Cleanup
+    ui_->cleanup();
+    
     return 0;
 }
 
@@ -34,8 +43,9 @@ void MathBench::parseArguments(int argc, char **argv)
 
 void MathBench::executeBenchmark(const std::string &title, const std::function<double(int)> &worker, std::size_t iterations)
 {
-    std::cout << title << '\n';
-
+    // Notify UI that benchmark is starting
+    ui_->startBenchmark(title, iterations);
+    
     std::vector<double> results(threadCount_, 0.0);
     std::vector<std::thread> threads;
     threads.reserve(threadCount_);
@@ -51,60 +61,46 @@ void MathBench::executeBenchmark(const std::string &title, const std::function<d
         t.join();
     }
 
+    // Calculate results
     double totalDuration = 0.0;
     for (int i = 0; i < threadCount_; ++i)
     {
         totalDuration += results[i];
-        if (results[i] < 1.0)
-            std::cout << "Thread " << i << " duration: " << round(results[i] * 1000.0) << " ms\n";
-        else
-            std::cout << "Thread " << i << " duration: " << round(results[i] * 1000.0) / 1000.0 << " seconds\n";
-    }
-    if (totalDuration < 1.0)
-    {
-        std::cout << "Combined time across all threads: " << round(totalDuration * 1000.0) << " ms\n";
-    }
-    else
-    {
-        std::cout << "Combined time across all threads: " << round(totalDuration * 1000.0) / 1000.0 << " seconds\n";
     }
 
     double avgDuration = totalDuration / threadCount_;
     double opsPerSec = iterations / avgDuration;
-    if (opsPerSec < 1e6)
-    {
-        std::cout << (opsPerSec) << " ops/sec (avg per thread)\n";
-    }
-    else
-    {
-        std::cout << "~" << (round(opsPerSec / 1e6)) << " million ops/sec (avg per thread)\n";
-    }
+    
+    // Prepare result for UI
+    BenchmarkResult result;
+    result.name = title;
+    result.threadDurations = results;
+    result.totalDuration = totalDuration;
+    result.avgDuration = avgDuration;
+    result.opsPerSec = opsPerSec;
+    result.iterations = iterations;
+    result.completed = true;
+    
+    // Update UI with results
+    ui_->completeBenchmark(title, result);
+    
+    // Small delay to let user see the update
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
 
 void MathBench::runAllBenchmarks()
 {
     runBasicArithmeticBenchmark();
-    std::cout << "-----------------------------------\n";
     runTrigonometryBenchmark();
-    std::cout << "-----------------------------------\n";
     runLogarithmBenchmark();
-    std::cout << "-----------------------------------\n";
     runExponentialBenchmark();
-    std::cout << "-----------------------------------\n";
     runSquareRootBenchmark();
-    std::cout << "-----------------------------------\n";
     runSha256HashingBenchmark();
-    std::cout << "-----------------------------------\n";
     runSortingBenchmark();
-    std::cout << "-----------------------------------\n";
     runMatrixMultiplicationBenchmark();
-    std::cout << "-----------------------------------\n";
     runPrimeNumberBenchmark();
-    std::cout << "-----------------------------------\n";
     runFibonacciBenchmark();
-    std::cout << "-----------------------------------\n";
     runMonteCarloPiBenchmark();
-    std::cout << "-----------------------------------\n";
     runFourierTransformBenchmark();
 }
 
@@ -113,7 +109,7 @@ void MathBench::runBasicArithmeticBenchmark()
     const std::size_t iterations = 10'000'000;
     std::vector<double> sums(threadCount_, 0.0);
     std::vector<double> products(threadCount_, 0.0);
-    executeBenchmark("Running basic arithmetic benchmark...", [this, iterations, &sums, &products](int threadIndex)
+    executeBenchmark("Basic Arithmetic", [this, iterations, &sums, &products](int threadIndex)
                      {
                          std::random_device rd;
                          std::mt19937 localEngine(rd());
@@ -149,7 +145,7 @@ void MathBench::runTrigonometryBenchmark()
     std::vector<double> sines(threadCount_, 0.0);
     std::vector<double> cosines(threadCount_, 0.0);
     std::vector<double> tangents(threadCount_, 0.0);
-    executeBenchmark("Running trigonometry benchmark...", [this, iterations, &sines, &cosines, &tangents](int threadIndex)
+    executeBenchmark("Trigonometry", [this, iterations, &sines, &cosines, &tangents](int threadIndex)
                      {
                          std::random_device rd;
                          std::mt19937 localEngine(rd());
@@ -184,7 +180,7 @@ void MathBench::runLogarithmBenchmark()
 {
     const std::size_t iterations = 1'000'000;
     std::vector<double> logSums(threadCount_, 0.0);
-    executeBenchmark("Running logarithm benchmark...", [this, iterations, &logSums](int threadIndex)
+    executeBenchmark("Logarithm", [this, iterations, &logSums](int threadIndex)
                      {
                          std::random_device rd;
                          std::mt19937 localEngine(rd());
@@ -209,7 +205,7 @@ void MathBench::runLogarithmBenchmark()
 void MathBench::runSha256HashingBenchmark()
 {
     const std::size_t iterations = 100'000;
-    executeBenchmark("Running SHA-256 hashing benchmark...", [this, iterations](int)
+    executeBenchmark("SHA-256 Hashing", [this, iterations](int)
                      {
                          std::random_device rd;
                          std::mt19937 localEngine(rd());
@@ -238,7 +234,7 @@ void MathBench::runSortingBenchmark()
 {
     const std::size_t iterations = 100;  // Number of sorts per thread
     const std::size_t dataSize = 100000; // Size of each array to sort
-    executeBenchmark("Running sorting benchmark...", [this, iterations, dataSize](int)
+    executeBenchmark("Array Sorting", [this, iterations, dataSize](int)
                      {
                          std::random_device rd;
                          std::mt19937 localEngine(rd());
@@ -266,7 +262,7 @@ void MathBench::runMatrixMultiplicationBenchmark()
 {
     const std::size_t iterations = 100;
     const std::size_t matrixSize = 100; // 200x200 matrices
-    executeBenchmark("Running matrix multiplication benchmark...", [this, iterations, matrixSize](int)
+    executeBenchmark("Matrix Multiplication", [this, iterations, matrixSize](int)
                      {
                          std::random_device rd;
                          std::mt19937 localEngine(rd());
@@ -310,7 +306,7 @@ void MathBench::runPrimeNumberBenchmark()
 {
     const std::size_t iterations = 100;
     const std::size_t limit = 1'000'000; // Find primes up to 1,000,000
-    executeBenchmark("Running prime number benchmark...", [this, iterations, limit](int)
+    executeBenchmark("Prime Numbers (Sieve)", [this, iterations, limit](int)
                      {
                          double duration = timeFunction([&]()
                                                         {
@@ -334,7 +330,7 @@ void MathBench::runExponentialBenchmark()
 {
     const std::size_t iterations = 1'000'000;
     std::vector<double> expSums(threadCount_, 0.0);
-    executeBenchmark("Running exponential benchmark...", [this, iterations, &expSums](int threadIndex)
+    executeBenchmark("Exponential", [this, iterations, &expSums](int threadIndex)
                      {
                              std::random_device rd;
                              std::mt19937 localEngine(rd());
@@ -360,7 +356,7 @@ void MathBench::runSquareRootBenchmark()
 {
     const std::size_t iterations = 1'000'000;
     std::vector<double> sqrtSums(threadCount_, 0.0);
-    executeBenchmark("Running square root benchmark...", [this, iterations, &sqrtSums](int threadIndex)
+    executeBenchmark("Square Root", [this, iterations, &sqrtSums](int threadIndex)
                      {
                              std::random_device rd;
                              std::mt19937 localEngine(rd());
@@ -385,7 +381,7 @@ void MathBench::runSquareRootBenchmark()
 void MathBench::runFibonacciBenchmark()
 {
     const std::size_t iterations = 40; // Calculate Fibonacci up to F(40)
-    executeBenchmark("Running Fibonacci benchmark...", [this, iterations](int)
+    executeBenchmark("Fibonacci", [this, iterations](int)
                      {
                              std::function<int(int)> fibonacci = [&fibonacci](int n)
                              {
@@ -408,7 +404,7 @@ void MathBench::runMonteCarloPiBenchmark()
 {
     const std::size_t iterations = 10'000'000; // Number of random points per iteration
     const std::size_t samples = 10; // Number of times to run the estimation
-    executeBenchmark("Running Monte Carlo Pi benchmark...", [this, iterations, samples](int)
+    executeBenchmark("Monte Carlo Pi", [this, iterations, samples](int)
                      {
                              std::random_device rd;
                              std::mt19937 localEngine(rd());
@@ -436,7 +432,7 @@ void MathBench::runFourierTransformBenchmark()
 {
     const std::size_t iterations = 10;    
     const std::size_t dataSize = 1 << 10; // 1024 points (reduced from 4096)
-    executeBenchmark("Running Fourier Transform benchmark...", [this, iterations, dataSize](int)
+    executeBenchmark("Fourier Transform (DFT)", [this, iterations, dataSize](int)
                      {
                              std::random_device rd;
                              std::mt19937 localEngine(rd());

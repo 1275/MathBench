@@ -13,7 +13,9 @@
 #include <functional>
 #include <random>
 #include <thread>
-#include "picosha2.h"
+#include <memory>
+#include "../external/picosha2.h"
+#include "UI.h"
 
 // The MathBench class is a simple entry point for running
 // different math benchmarks from your main() function.
@@ -32,6 +34,7 @@ public:
 
 private:
     int threadCount_{1};
+    std::unique_ptr<UI> ui_;
     //std::string selectedBenchmark_{"all"};
 
     // Helper to build per-thread RNGs with different seeds.
