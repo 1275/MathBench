@@ -55,12 +55,30 @@ void MathBench::executeBenchmark(const std::string &title, const std::function<d
     for (int i = 0; i < threadCount_; ++i)
     {
         totalDuration += results[i];
-        std::cout << "Thread " << i << " duration: " << results[i] << " seconds\n";
+        if (results[i] < 1.0)
+            std::cout << "Thread " << i << " duration: " << round(results[i] * 1000.0) << " ms\n";
+        else
+            std::cout << "Thread " << i << " duration: " << round(results[i] * 1000.0) / 1000.0 << " seconds\n";
     }
-    std::cout << "Combined time across all threads: " << totalDuration << " seconds\n";
+    if (totalDuration < 1.0)
+    {
+        std::cout << "Combined time across all threads: " << round(totalDuration * 1000.0) << " ms\n";
+    }
+    else
+    {
+        std::cout << "Combined time across all threads: " << round(totalDuration * 1000.0) / 1000.0 << " seconds\n";
+    }
+    
     double avgDuration = totalDuration / threadCount_;
     double opsPerSec = iterations / avgDuration;
-    std::cout << "~" << (opsPerSec / 1e6) << " million ops/sec (avg per thread)\n";
+    if (opsPerSec < 1e6)
+    {
+        std::cout << (opsPerSec) << " ops/sec (avg per thread)\n";
+    }
+    else
+    {
+        std::cout << "~" << (round(opsPerSec / 1e6)) << " million ops/sec (avg per thread)\n";
+    }
 }
 
 void MathBench::runAllBenchmarks()
@@ -80,7 +98,7 @@ void MathBench::runAllBenchmarks()
 
 void MathBench::runBasicArithmeticBenchmark()
 {
-    const std::size_t iterations = 1'000'000;
+    const std::size_t iterations = 10'000'000;
     std::vector<double> sums(threadCount_, 0.0);
     std::vector<double> products(threadCount_, 0.0);
     executeBenchmark("Running basic arithmetic benchmark...",
