@@ -1,5 +1,7 @@
 # Build artifacts
+build/
 mathbench
+mathbench-*
 *.o
 *.obj
 *.exe

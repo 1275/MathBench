@@ -30,7 +30,7 @@ MathBench/
 
 ## Dependencies for Debian based systems
 
-
+### Native Build
 ```bash
 apt update && apt install make g++ gcc build-essential 
 ```
@@ -40,8 +40,20 @@ If you don't wanna add sudo manually
 sudo apt update && sudo apt install make g++ gcc build-essential 
 ```
 
+### Cross-Compilation Toolchains
+For cross-compiling to different architectures:
+
+```bash
+sudo apt install \
+    gcc-arm-linux-gnueabi g++-arm-linux-gnueabi \
+    gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf \
+    gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
+    gcc-riscv64-linux-gnu g++-riscv64-linux-gnu
+```
+
 ## Building
 
+### Native Build
 ```bash
 make
 ```
@@ -50,6 +62,29 @@ This will:
 - Create the `build/` directory if it doesn't exist
 - Compile all source files
 - Link the final executable `mathbench`
+
+### Cross-Compilation
+
+Build for specific architecture:
+```bash
+make armv6      # ARMv6 (Raspberry Pi Zero, Pi 1)
+make armv7      # ARMv7
+make armhf      # ARM Hard Float (ARMv7)
+make arm64      # ARM64/AArch64 (Raspberry Pi 3/4/5, most modern ARM)
+make riscv64    # RISC-V 64-bit (Milk-V, StarFive)
+```
+
+Build all architectures at once:
+```bash
+make all-cross
+```
+
+This will create binaries:
+- `mathbench-armv6`
+- `mathbench-armv7`
+- `mathbench-armhf`
+- `mathbench-arm64`
+- `mathbench-riscv64`
 
 ## Running
 
@@ -61,6 +96,12 @@ Run with default settings (1 thread):
 Run with multiple threads:
 ```bash
 ./mathbench 4
+```
+
+Run cross-compiled binary on target device:
+```bash
+# Transfer binary to target device, then:
+./mathbench-arm64 4
 ```
 
 ## Benchmarks Included
