@@ -11,6 +11,7 @@
 #include <cmath>
 #include <random>
 #include <thread>
+#include "picosha2.h"
 
 // The MathBench class is a simple entry point for running
 // different math benchmarks from your main() function.
@@ -29,19 +30,20 @@ public:
 
 private:
     int threadCount_{1};
-    std::string selectedBenchmark_{"all"};
-    std::mt19937 randomEngine_{std::random_device{}()};
+    //std::string selectedBenchmark_{"all"};
 
-    
+    // Helper to build per-thread RNGs with different seeds.
+    std::random_device rd_;
 
-	// Parse command line arguments (e.g., which benchmark to run, thread count, etc.).
-	void parseArguments(int argc, char** argv);
+    // Parse command line arguments (e.g., which benchmark to run, thread count, etc.).
+    void parseArguments(int argc, char** argv);
 	// Example benchmark hooks — you can change/extend these as you like.
 	void runAllBenchmarks();
 	void runBasicArithmeticBenchmark();
 	void runTrigonometryBenchmark();
-    /*
     void runLogarithmBenchmark();
+    void runSha256HashingBenchmark();
+    /*
     void runExponentialBenchmark();
     void runSquareRootBenchmark();
     void runFibonacciBenchmark();
@@ -55,7 +57,7 @@ private:
     void runVectorOperationsBenchmark();
     void runDifferentialEquationBenchmark();
     void runBigIntegerBenchmark();
-    void runSha256HashingBenchmark();
+    ;
     void runAesEncryptionBenchmark();
     void runBaseConversionBenchmark();
     void runDateTimeComputationBenchmark();
