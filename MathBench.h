@@ -43,6 +43,8 @@ private:
 	void runTrigonometryBenchmark();
     void runLogarithmBenchmark();
     void runSha256HashingBenchmark();
+    void runSortingBenchmark();
+
     /*
     void runExponentialBenchmark();
     void runSquareRootBenchmark();
@@ -50,7 +52,7 @@ private:
     void runPrimeNumberBenchmark();
     void runMatrixMultiplicationBenchmark();
     void runFourierTransformBenchmark();
-    void runSortingBenchmark();
+    
     void runRandomNumberGenerationBenchmark();
     void runStatisticalComputationBenchmark();
     void runComplexNumberBenchmark();

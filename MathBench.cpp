@@ -39,6 +39,8 @@ void MathBench::runAllBenchmarks()
     runLogarithmBenchmark();
     std::cout << "-----------------------------------\n";
     runSha256HashingBenchmark();
+    std::cout << "-----------------------------------\n";
+    runSortingBenchmark();
 }
 
 void MathBench::runBasicArithmeticBenchmark()
@@ -234,6 +236,56 @@ void MathBench::runSha256HashingBenchmark()
 
                 // Optional: accumulate something from hash so the compiler can't drop it
                 // (though the work is already pretty observable).
+            }, iterations);
+            results[i] = duration; });
+    }
+
+    // Wait for all threads to finish
+    for (auto &t : threads)
+    {
+        t.join();
+    }
+
+    double totalDuration = 0.0;
+    int threadIndex = 0;
+    for (const auto &dur : results)
+    {
+        totalDuration += dur;
+        std::cout << "Thread " << threadIndex++ << " duration: " << dur << " seconds\n";
+    }
+    std::cout << "Combined time across all threads: " << totalDuration << " seconds\n";
+}
+
+void MathBench::runSortingBenchmark()
+{
+    std::cout << "Running sorting benchmark...\n";
+    const std::size_t iterations = 1000; // Number of sorts per thread
+    const std::size_t dataSize = 100000;   // Size of each array to sort
+    std::vector<double> results(threadCount_, 0.0);
+
+    std::vector<std::thread> threads;
+    threads.reserve(threadCount_);
+
+    for (int i = 0; i < threadCount_; ++i)
+    {
+        threads.emplace_back([this, iterations, dataSize, &results, i]()
+                             {
+            std::random_device rd;
+            std::mt19937 localEngine(rd());
+            std::uniform_int_distribution<int> intDist(0, 1000000);
+
+            auto randData = [&localEngine, &intDist, dataSize]() {
+                std::vector<int> data(dataSize);
+                for (auto &val : data)
+                {
+                    val = intDist(localEngine);
+                }
+                return data;
+            };
+
+            double duration = timeFunction([&]() {
+                auto data = randData();
+                std::sort(data.begin(), data.end());
             }, iterations);
             results[i] = duration; });
     }
