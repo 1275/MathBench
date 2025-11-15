@@ -1,5 +1,5 @@
 CXX := g++
-CXXFLAGS := -std=c++17 -O2 -Wall -Wextra -pedantic
+CXXFLAGS := -std=c++17 -O2 -Wall -Wextra -pedantic -Wno-psabi
 
 # Directories
 SRC_DIR := src
