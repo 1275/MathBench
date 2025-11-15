@@ -1,0 +1,20 @@
+# Build artifacts
+mathbench
+*.o
+*.obj
+*.exe
+
+# IDE/editor files
+.vscode/
+.idea/
+*.user
+*.suo
+*.VC.db
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+*.tmp
