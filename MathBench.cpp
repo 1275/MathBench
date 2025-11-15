@@ -68,7 +68,7 @@ void MathBench::executeBenchmark(const std::string &title, const std::function<d
     {
         std::cout << "Combined time across all threads: " << round(totalDuration * 1000.0) / 1000.0 << " seconds\n";
     }
-    
+
     double avgDuration = totalDuration / threadCount_;
     double opsPerSec = iterations / avgDuration;
     if (opsPerSec < 1e6)
@@ -89,6 +89,10 @@ void MathBench::runAllBenchmarks()
     std::cout << "-----------------------------------\n";
     runLogarithmBenchmark();
     std::cout << "-----------------------------------\n";
+    runExponentialBenchmark();
+    std::cout << "-----------------------------------\n";
+    runSquareRootBenchmark();
+    std::cout << "-----------------------------------\n";
     runSha256HashingBenchmark();
     std::cout << "-----------------------------------\n";
     runSortingBenchmark();
@@ -96,6 +100,12 @@ void MathBench::runAllBenchmarks()
     runMatrixMultiplicationBenchmark();
     std::cout << "-----------------------------------\n";
     runPrimeNumberBenchmark();
+    std::cout << "-----------------------------------\n";
+    runFibonacciBenchmark();
+    std::cout << "-----------------------------------\n";
+    runMonteCarloPiBenchmark();
+    std::cout << "-----------------------------------\n";
+    runFourierTransformBenchmark();
 }
 
 void MathBench::runBasicArithmeticBenchmark()
@@ -103,8 +113,7 @@ void MathBench::runBasicArithmeticBenchmark()
     const std::size_t iterations = 10'000'000;
     std::vector<double> sums(threadCount_, 0.0);
     std::vector<double> products(threadCount_, 0.0);
-    executeBenchmark("Running basic arithmetic benchmark...",
-                     [this, iterations, &sums, &products](int threadIndex)
+    executeBenchmark("Running basic arithmetic benchmark...", [this, iterations, &sums, &products](int threadIndex)
                      {
                          std::random_device rd;
                          std::mt19937 localEngine(rd());
@@ -131,8 +140,7 @@ void MathBench::runBasicArithmeticBenchmark()
                          double duration = timeFunction(func, iterations);
                          sums[threadIndex] = sum;
                          products[threadIndex] = product;
-                         return duration;
-                     }, iterations);
+                         return duration; }, iterations);
 }
 
 void MathBench::runTrigonometryBenchmark()
@@ -141,8 +149,7 @@ void MathBench::runTrigonometryBenchmark()
     std::vector<double> sines(threadCount_, 0.0);
     std::vector<double> cosines(threadCount_, 0.0);
     std::vector<double> tangents(threadCount_, 0.0);
-    executeBenchmark("Running trigonometry benchmark...",
-                     [this, iterations, &sines, &cosines, &tangents](int threadIndex)
+    executeBenchmark("Running trigonometry benchmark...", [this, iterations, &sines, &cosines, &tangents](int threadIndex)
                      {
                          std::random_device rd;
                          std::mt19937 localEngine(rd());
@@ -170,16 +177,14 @@ void MathBench::runTrigonometryBenchmark()
                          sines[threadIndex] = accSine;
                          cosines[threadIndex] = accCosine;
                          tangents[threadIndex] = accTangent;
-                         return duration;
-                     }, iterations);
+                         return duration; }, iterations);
 }
 
 void MathBench::runLogarithmBenchmark()
 {
     const std::size_t iterations = 1'000'000;
     std::vector<double> logSums(threadCount_, 0.0);
-    executeBenchmark("Running logarithm benchmark...",
-                     [this, iterations, &logSums](int threadIndex)
+    executeBenchmark("Running logarithm benchmark...", [this, iterations, &logSums](int threadIndex)
                      {
                          std::random_device rd;
                          std::mt19937 localEngine(rd());
@@ -198,15 +203,13 @@ void MathBench::runLogarithmBenchmark()
 
                          double duration = timeFunction(func, iterations);
                          logSums[threadIndex] = sumLogs;
-                         return duration;
-                     }, iterations);
+                         return duration; }, iterations);
 }
 
 void MathBench::runSha256HashingBenchmark()
 {
     const std::size_t iterations = 100'000;
-    executeBenchmark("Running SHA-256 hashing benchmark...",
-                     [this, iterations](int)
+    executeBenchmark("Running SHA-256 hashing benchmark...", [this, iterations](int)
                      {
                          std::random_device rd;
                          std::mt19937 localEngine(rd());
@@ -228,16 +231,14 @@ void MathBench::runSha256HashingBenchmark()
                              std::vector<unsigned char> hash(picosha2::k_digest_size);
                              picosha2::hash256(data.begin(), data.end(), hash.begin(), hash.end()); }, iterations);
 
-                         return duration;
-                     }, iterations);
+                         return duration; }, iterations);
 }
 
 void MathBench::runSortingBenchmark()
 {
-    const std::size_t iterations = 100; // Number of sorts per thread
+    const std::size_t iterations = 100;  // Number of sorts per thread
     const std::size_t dataSize = 100000; // Size of each array to sort
-    executeBenchmark("Running sorting benchmark...",
-                     [this, iterations, dataSize](int)
+    executeBenchmark("Running sorting benchmark...", [this, iterations, dataSize](int)
                      {
                          std::random_device rd;
                          std::mt19937 localEngine(rd());
@@ -258,16 +259,14 @@ void MathBench::runSortingBenchmark()
                              auto data = randData();
                              std::sort(data.begin(), data.end()); }, iterations);
 
-                         return duration;
-                     }, iterations);
+                         return duration; }, iterations);
 }
 
 void MathBench::runMatrixMultiplicationBenchmark()
 {
     const std::size_t iterations = 100;
     const std::size_t matrixSize = 100; // 200x200 matrices
-    executeBenchmark("Running matrix multiplication benchmark...",
-                     [this, iterations, matrixSize](int)
+    executeBenchmark("Running matrix multiplication benchmark...", [this, iterations, matrixSize](int)
                      {
                          std::random_device rd;
                          std::mt19937 localEngine(rd());
@@ -303,8 +302,7 @@ void MathBench::runMatrixMultiplicationBenchmark()
                                  }
                              } }, iterations);
 
-                         return duration;
-                     }, iterations);
+                         return duration; }, iterations);
 }
 
 // Sieve of Eratosthenes based prime number benchmark
@@ -312,8 +310,7 @@ void MathBench::runPrimeNumberBenchmark()
 {
     const std::size_t iterations = 100;
     const std::size_t limit = 1'000'000; // Find primes up to 1,000,000
-    executeBenchmark("Running prime number benchmark...",
-                     [this, iterations, limit](int)
+    executeBenchmark("Running prime number benchmark...", [this, iterations, limit](int)
                      {
                          double duration = timeFunction([&]()
                                                         {
@@ -330,6 +327,146 @@ void MathBench::runPrimeNumberBenchmark()
                                  }
                              } }, iterations);
 
-                         return duration;
-                     }, iterations);
+                         return duration; }, iterations);
+}
+
+void MathBench::runExponentialBenchmark()
+{
+    const std::size_t iterations = 1'000'000;
+    std::vector<double> expSums(threadCount_, 0.0);
+    executeBenchmark("Running exponential benchmark...", [this, iterations, &expSums](int threadIndex)
+                     {
+                             std::random_device rd;
+                             std::mt19937 localEngine(rd());
+
+                             auto randDouble = [&localEngine]()
+                             {
+                                 return (localEngine() % 1000) / 10.0; // 0.0 to 99.9
+                             };
+
+                             double sumExps = 0.0;
+                             auto func = [&]()
+                             {
+                                 double val = randDouble();
+                                 sumExps += std::exp(val);
+                             };
+
+                             double duration = timeFunction(func, iterations);
+                             expSums[threadIndex] = sumExps;
+                             return duration; }, iterations);
+}
+
+void MathBench::runSquareRootBenchmark()
+{
+    const std::size_t iterations = 1'000'000;
+    std::vector<double> sqrtSums(threadCount_, 0.0);
+    executeBenchmark("Running square root benchmark...", [this, iterations, &sqrtSums](int threadIndex)
+                     {
+                             std::random_device rd;
+                             std::mt19937 localEngine(rd());
+
+                             auto randDouble = [&localEngine]()
+                             {
+                                 return (localEngine() % 1'000'000) / 100.0 + 1.0; // Avoid zero
+                             };
+
+                             double sumSqrts = 0.0;
+                             auto func = [&]()
+                             {
+                                 double val = randDouble();
+                                 sumSqrts += std::sqrt(val);
+                             };
+
+                             double duration = timeFunction(func, iterations);
+                             sqrtSums[threadIndex] = sumSqrts;
+                             return duration; }, iterations);
+}
+
+void MathBench::runFibonacciBenchmark()
+{
+    const std::size_t iterations = 40; // Calculate Fibonacci up to F(40)
+    executeBenchmark("Running Fibonacci benchmark...", [this, iterations](int)
+                     {
+                             std::function<int(int)> fibonacci = [&fibonacci](int n)
+                             {
+                                 if (n <= 1)
+                                     return n;
+                                 return fibonacci(n - 1) + fibonacci(n - 2);
+                             };
+
+                             double duration = timeFunction([&]()
+                                                            {
+                                 for (std::size_t i = 0; i < iterations; ++i)
+                                 {
+                                     (void)fibonacci(20); // Prevent optimization
+                                 } }, iterations);
+
+                             return duration; }, iterations);
+}
+
+void MathBench::runMonteCarloPiBenchmark()
+{
+    const std::size_t iterations = 10'000'000; // Number of random points per iteration
+    const std::size_t samples = 10; // Number of times to run the estimation
+    executeBenchmark("Running Monte Carlo Pi benchmark...", [this, iterations, samples](int)
+                     {
+                             std::random_device rd;
+                             std::mt19937 localEngine(rd());
+                             std::uniform_real_distribution<double> dist(0.0, 1.0);
+
+                             double duration = timeFunction([&]()
+                                                            {
+                                 std::size_t insideCircle = 0;
+                                 for (std::size_t i = 0; i < iterations; ++i)
+                                 {
+                                     double x = dist(localEngine);
+                                     double y = dist(localEngine);
+                                     if (x * x + y * y <= 1.0)
+                                     {
+                                         ++insideCircle;
+                                     }
+                                 }
+                                 (void)(4.0 * insideCircle / iterations); // Prevent optimization
+                             }, samples);
+
+                             return duration; }, samples);
+}
+
+void MathBench::runFourierTransformBenchmark()
+{
+    const std::size_t iterations = 10;    
+    const std::size_t dataSize = 1 << 10; // 1024 points (reduced from 4096)
+    executeBenchmark("Running Fourier Transform benchmark...", [this, iterations, dataSize](int)
+                     {
+                             std::random_device rd;
+                             std::mt19937 localEngine(rd());
+                             std::uniform_real_distribution<double> dist(0.0, 1.0);
+
+                             auto randData = [&localEngine, &dist, dataSize]()
+                             {
+                                 std::vector<std::complex<double>> data(dataSize);
+                                 for (auto &val : data)
+                                 {
+                                     val = std::complex<double>(dist(localEngine), dist(localEngine));
+                                 }
+                                 return data;
+                             };
+
+                             double duration = timeFunction([&]()
+                                                            {
+                                 auto data = randData();
+                                 // Simple DFT implementation
+                                 std::vector<std::complex<double>> result(dataSize);
+                                 for (std::size_t k = 0; k < dataSize; ++k)
+                                 {
+                                     std::complex<double> sum(0.0, 0.0);
+                                     for (std::size_t n = 0; n < dataSize; ++n)
+                                     {
+                                         double angle = -2.0 * M_PI * k * n / dataSize;
+                                         sum += data[n] * std::complex<double>(cos(angle), sin(angle));
+                                     }
+                                     result[k] = sum;
+                                 } }, iterations);
+
+                             return duration; }, iterations);
 }

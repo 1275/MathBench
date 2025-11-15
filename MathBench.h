@@ -9,6 +9,7 @@
 #include <string>
 #include <chrono>
 #include <cmath>
+#include <complex>
 #include <functional>
 #include <random>
 #include <thread>
@@ -47,14 +48,14 @@ private:
     void runSortingBenchmark();
     void runMatrixMultiplicationBenchmark();
     void runPrimeNumberBenchmark();
-
-    /*
     void runExponentialBenchmark();
     void runSquareRootBenchmark();
     void runFibonacciBenchmark();
-    
-    
+    void runMonteCarloPiBenchmark();
     void runFourierTransformBenchmark();
+
+    /*
+
     
     void runRandomNumberGenerationBenchmark();
     void runStatisticalComputationBenchmark();
