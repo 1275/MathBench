@@ -1,0 +1,51 @@
+Test date 2025-11-15 4 am 
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                            MATHBENCH PERFORMANCE SUITE                       ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+ Benchmark                     Status      Min/Max             Ops/sec      
+────────────────────────────────────────────────────────────────────────────────
+ Basic Arithmetic              ✓ Done    250 ms/258 ms       39.45 Mops/s 
+ Trigonometry                  ✓ Done    428 ms/447 ms       2.29 Mops/s  
+ Logarithm                     ✓ Done    139 ms/144 ms       7.09 Mops/s  
+ Exponential                   ✓ Done    128 ms/132 ms       7.69 Mops/s  
+ Square Root                   ✓ Done    78 ms/81 ms         12.53 Mops/s 
+ SHA-256 Hashing               ✓ Done    2.21 s/2.29 s       44.71 Kops/s 
+ Array Sorting                 ✓ Done    1.76 s/1.88 s       55.54 ops/s  
+ Matrix Multiplication         ✓ Done    3.07 s/3.28 s       31.63 ops/s  
+ Prime Numbers (Sieve)         ✓ Done    3.37 s/3.37 s       29.64 ops/s  
+ Fibonacci                     ✓ Done    531 ms/546 ms       74.58 ops/s  
+ Monte Carlo Pi                ✓ Done    9.18 s/9.44 s       1.08 ops/s   
+ Fourier Transform (DFT)       ✓ Done    2.78 s/2.89 s       3.55 ops/s   
+
+
+
+
+╠══════════════════════════════════════════════════════════════════════════════╣
+║ Threads: 3 │ Completed: 12/12 │ Elapsed: 25s                             ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+
+Additional information about computer using fastfetch
+                ..                     
+            `:]x**j-,'                 ------------------------
+       .,+t***********z\<"             OS: Armbian_community 25.11.0-trunk.437 trixie armv7l
+       ?******************;            Host: Luckfox Lyra Zero W
+      '*n` .'`^,;;,^`'. ,cc.           Kernel: Linux 6.1.115-vendor-rockchip
+      -<.                .[l           Uptime: 2 days, 5 hours, 12 mins
+     //     ^^      ^^    \\           Packages: 351 (dpkg)
+     !^         ^^         ":          Shell: bash 5.2.37
+    'tt}`     !~]rj_     ")t/.         Terminal: /dev/pts/1
+    Itttt?'   ~~]rr]   `{tttt,         CPU: rk3506 (3)
+    \tttttt!""I_]r("""~tttttt1         Memory: 79.20 MiB / 462.50 MiB (17%)
+  '_tttttttttttt)ftttttttttttti.       Swap: 4.25 MiB / 231.25 MiB (2%)
+ \*ztttttttttttttttttttttttttf**[      Disk (/): 1.41 GiB / 28.09 GiB (5%) - ext4
+l**c)tttttttttttttttttttttttt(z**,     Disk (/var/log): 544.00 KiB / 46.84 MiB (1%) - ext4
+.z*x.`tttttttttttttttttttttttt.`u*n    
+>`   (tttttttttttttttttttttt]   "I     Locale: en_US.UTF-8
+     ,tttttttttttttttttttttt`
+     ./tttttfttttttttfttttt(                                   
+      'I)))(\()(tt))|\()({;'                                   
+        .~~~~~~~|)~~~~~~~<
+        '[)))))1|()))))))?
+          ",,,"    ",,,^

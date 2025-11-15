@@ -1,0 +1,50 @@
+Test date 2025-11-15 4 am 
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                            MATHBENCH PERFORMANCE SUITE                       ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+ Benchmark                     Status      Min/Max             Ops/sec      
+────────────────────────────────────────────────────────────────────────────────
+ Basic Arithmetic              ✓ Done    115 ms/116 ms       86.18 Mops/s 
+ Trigonometry                  ✓ Done    242 ms/243 ms       4.12 Mops/s  
+ Logarithm                     ✓ Done    74 ms/75 ms         13.39 Mops/s 
+ Exponential                   ✓ Done    76 ms/76 ms         13.10 Mops/s 
+ Square Root                   ✓ Done    55 ms/56 ms         17.95 Mops/s 
+ SHA-256 Hashing               ✓ Done    1.81 s/1.81 s       55.18 Kops/s 
+ Array Sorting                 ✓ Done    1.27 s/1.28 s       78.28 ops/s  
+ Matrix Multiplication         ✓ Done    1.16 s/1.18 s       85.50 ops/s  
+ Prime Numbers (Sieve)         ✓ Done    1.14 s/1.14 s       87.81 ops/s  
+ Fibonacci                     ✓ Done    492 ms/493 ms       81.18 ops/s  
+ Monte Carlo Pi                ✓ Done    6.89 s/6.90 s       1.45 ops/s   
+ Fourier Transform (DFT)       ✓ Done    1.49 s/1.49 s       6.72 ops/s   
+
+
+
+
+╠══════════════════════════════════════════════════════════════════════════════╣
+║ Threads: 4 │ Completed: 12/12 │ Elapsed: 15s                             ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Additional information about computer using fastfetch
+                ..                     
+            `:]x**j-,'                 ---------------
+       .,+t***********z\<"             OS: Armbian 25.11.0-trunk.38 trixie aarch64
+       ?******************;            Host: Radxa Zero
+      '*n` .'`^,;;,^`'. ,cc.           Kernel: Linux 6.12.56-current-meson64
+      -<.                .[l           Uptime: 2 days, 4 hours, 32 mins
+     //     ^^      ^^    \\           Packages: 782 (dpkg)
+     !^         ^^         ":          Shell: bash 5.2.37
+    'tt}`     !~]rj_     ")t/.         Terminal: /dev/pts/1
+    Itttt?'   ~~]rr]   `{tttt,         CPU: g12a (4) @ 1.80 GHz
+    \tttttt!""I_]r("""~tttttt1         GPU: Amlogic meson-g12a-mali [Integrated]
+  '_tttttttttttt)ftttttttttttti.       Memory: 264.67 MiB / 3.68 GiB (7%)
+ \*ztttttttttttttttttttttttttf**[      Swap: 0 B / 1.84 GiB (0%)
+l**c)tttttttttttttttttttttttt(z**,     Disk (/): 6.35 GiB / 14.00 GiB (45%) - ext4
+.z*x.`tttttttttttttttttttttttt.`u*n    Disk (/var/log): 22.64 MiB / 46.84 MiB (48%) - ext4
+>`   (tttttttttttttttttttttt]   "I     
+     ,tttttttttttttttttttttt`          Locale: en_US.UTF-8
+     ./tttttfttttttttfttttt(
+      'I)))(\()(tt))|\()({;'                                   
+        .~~~~~~~|)~~~~~~~<                                     
+        '[)))))1|()))))))?
+          ",,,"    ",,,^

@@ -1,0 +1,47 @@
+Test date 2025-11-15 4 am 
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                            MATHBENCH PERFORMANCE SUITE                       ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+ Benchmark                     Status      Time           Ops/sec           
+────────────────────────────────────────────────────────────────────────────────
+ Basic Arithmetic              ✓ Done    161 ms         61.83 Mops/s      
+ Trigonometry                  ✓ Done    580 ms         1.72 Mops/s       
+ Logarithm                     ✓ Done    240 ms         4.15 Mops/s       
+ Exponential                   ✓ Done    203 ms         4.92 Mops/s       
+ Square Root                   ✓ Done    140 ms         7.10 Mops/s       
+ SHA-256 Hashing               ✓ Done    6.82 s         14.66 Kops/s      
+ Array Sorting                 ✓ Done    2.78 s         36.02 ops/s       
+ Matrix Multiplication         ✓ Done    3.73 s         26.81 ops/s       
+ Prime Numbers (Sieve)         ✓ Done    5.55 s         18.01 ops/s       
+ Fibonacci                     ✓ Done    1.10 s         36.32 ops/s       
+ Monte Carlo Pi                ✓ Done    24.33 s        0.41 ops/s        
+ Fourier Transform (DFT)       ✓ Done    3.60 s         2.77 ops/s        
+
+
+
+
+╠══════════════════════════════════════════════════════════════════════════════╣
+║ Threads: 1 │ Completed: 12/12 │ Elapsed: 50s                             ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Additional information about computer using fastfetch
+
+
+        _,met$$$$$gg.          
+     ,g$$$$$$$$$$$$$$$P.       --------------
+   ,g$$P""       """Y$$.".     OS: Debian GNU/Linux 13 (trixie) riscv64
+  ,$$P'              `$$$.     Host: Milk-V DuoS
+',$$P       ,ggs.     `$$b:    Kernel: Linux 5.10.245-20251004-6+duos
+`d$$'     ,$P"'   .    $$$     Uptime: 15 days, 16 hours, 28 mins
+ $$P      d$'     ,    $$P     Packages: 694 (dpkg)
+ $$:      $$.   -    ,d$$'     Shell: bash 5.2.37
+ $$;      Y$b._   _,d$P'       Cursor: Adwaita
+ Y$$.    `.`"Y$$$$P"'          Terminal: /dev/pts/0
+ `$$b      "-.__               CPU: cv181x
+  `Y$$b
+   `Y$$.
+     `$$b.
+       `Y$$b.
+         `"Y$b._
+             `""""
