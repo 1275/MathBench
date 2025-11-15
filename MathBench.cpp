@@ -22,7 +22,8 @@ void MathBench::parseArguments(int argc, char **argv)
 void MathBench::runAllBenchmarks()
 {
     runBasicArithmeticBenchmark();
-    // runTrigonometryBenchmark();
+    std::cout << "-----------------------------------\n";
+    runTrigonometryBenchmark();
 }
 
 void MathBench::runBasicArithmeticBenchmark()
@@ -82,4 +83,58 @@ void MathBench::runBasicArithmeticBenchmark()
 void MathBench::runTrigonometryBenchmark()
 {
     std::cout << "Running trigonometry benchmark...\n";
+    const std::size_t iterations = 1'000'000;
+    std::vector<double> results(threadCount_, 0.0);
+    std::vector<double> sines(threadCount_, 0.0);
+    std::vector<double> cosines(threadCount_, 0.0);
+    std::vector<double> tangents(threadCount_, 0.0);
+    std::vector<std::thread> threads;
+    threads.reserve(threadCount_);
+    for (int i = 0; i < threadCount_; ++i)
+    {
+        threads.emplace_back([this, iterations, &results, &sines, &cosines, &tangents, i]()
+                            {
+            std::random_device rd;
+            std::mt19937 localEngine(rd());
+
+            auto randAngle = [&localEngine]() {
+                return (localEngine() % 36000) / 100.0; // 0.0 to 360.0 degrees
+            };
+
+            double angle = randAngle();   // in degrees
+            double accSine = 0.0;
+            double accCosine = 0.0;
+            double accTangent = 0.0;
+
+            // Use radians for std::sin/cos/tan
+            auto func = [&]() {
+                double rad = angle * M_PI / 180.0;
+                accSine   += std::sin(rad);
+                accCosine += std::cos(rad);
+                accTangent += std::tan(rad);
+                angle += 0.001; // change the angle slightly each iteration
+            };
+
+            double duration = timeFunction(func, iterations);
+            results[i] = duration;
+            sines[i] = accSine;
+            cosines[i] = accCosine;
+            tangents[i] = accTangent;
+        });
+    }
+
+    // Wait for all threads to finish
+    for (auto &t : threads)
+    {
+        t.join();
+    }
+
+    double totalDuration = 0.0;
+    int threadIndex = 0;
+    for (const auto &dur : results)
+    {
+        totalDuration += dur;
+        std::cout << "Thread " << threadIndex++ << " duration: " << dur << " seconds\n";
+    }
+    std::cout << "Total time taken across all threads: " << totalDuration << " seconds\n";
 }
